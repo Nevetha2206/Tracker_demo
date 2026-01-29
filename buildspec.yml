@@ -23,7 +23,7 @@ phases:
       - echo Building the Docker image...
       - ls -al
       - docker build -t my-streamlit-app .
-      - docker tag my-streamlit-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/chichu:latest
+      - docker tag my-streamlit-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/tracker:latest
 
   post_build:
     commands:
@@ -42,3 +42,4 @@ env:
   image: aws/codebuild/standard:5.0
 
   compute_type: BUILD_GENERAL1_SMALL
+
