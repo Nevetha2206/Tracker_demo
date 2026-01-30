@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM public.ecr.aws/docker/library/python:3.11-slim
  
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -19,3 +19,4 @@ EXPOSE 5000
  
 # Run Streamlit on port 5000 without specifying server.address
 CMD ["streamlit", "run", "app.py", "--server.port=5000"]
+
