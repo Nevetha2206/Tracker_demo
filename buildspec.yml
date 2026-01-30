@@ -1,12 +1,12 @@
 version: 0.2
- 
+
 env:
   variables:
     AWS_ACCOUNT_ID: "674614554202"
     AWS_DEFAULT_REGION: "us-east-1"
     ECR_REPO_NAME: "tracker"
     IMAGE_TAG: "latest"
- 
+
 phases:
   pre_build:
     commands:
@@ -17,21 +17,21 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
       - echo "Repo URI: $REPOSITORY_URI"
- 
+
   build:
     commands:
       - echo "=== Build: Building the Docker image ==="
       - ls -al
       - docker build --progress=plain -t $ECR_REPO_NAME:$IMAGE_TAG .
       - docker tag $ECR_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
- 
+
   post_build:
     commands:
       - echo "=== Post-build: Pushing the image to ECR ==="
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo "Pushed: $REPOSITORY_URI:$IMAGE_TAG"
       - echo "Build completed on $(date)"
- 
+
 artifacts:
   files:
     - "**/*"
