@@ -1,38 +1,42 @@
 version: 0.2
-
-env:
-  variables:
-    AWS_ACCOUNT_ID: "674614554202"
-    AWS_DEFAULT_REGION: "us-east-1"
-    ECR_REPO_NAME: "tracker"
-    IMAGE_TAG: "latest"
-
+ 
 phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      - python --version
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+ 
   pre_build:
     commands:
-      - echo "=== Pre-build: Logging in to Amazon ECR ==="
-      - echo "Account: $AWS_ACCOUNT_ID"
-      - echo "Region : $AWS_DEFAULT_REGION"
+      - echo "Logging in to Amazon ECR..."
+      - echo $AWS_ACCOUNT_ID
+      - echo $AWS_DEFAULT_REGION
       - aws sts get-caller-identity
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
-      - echo "Repo URI: $REPOSITORY_URI"
-
+ 
   build:
     commands:
-      - echo "=== Build: Building the Docker image ==="
+      - echo "Building the Docker image..."
       - ls -al
-      - docker build --progress=plain -t $ECR_REPO_NAME:$IMAGE_TAG .
-      - docker tag $ECR_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
-
+      - docker build -t my-streamlit-app .
+      - docker tag my-streamlit-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/tracker:latest
+ 
   post_build:
     commands:
-      - echo "=== Post-build: Pushing the image to ECR ==="
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo "Pushed: $REPOSITORY_URI:$IMAGE_TAG"
-      - echo "Build completed on $(date)"
-
+      - echo "Pushing the Docker image to ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/tracker:latest
+ 
 artifacts:
   files:
     - "**/*"
   discard-paths: yes
+ 
+env:
+  variables:
+    AWS_ACCOUNT_ID: "674614554202"
+    AWS_DEFAULT_REGION: "us-east-1"
+ 
